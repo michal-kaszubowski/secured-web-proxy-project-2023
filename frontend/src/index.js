@@ -4,30 +4,40 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import './styles/index.css';
 import reportWebVitals from './reportWebVitals';
 import ErrorPage from './error-page';
-import Root from './routes/Root';
-import Auth from './routes/Auth';
-import User from './routes/User';
-import Admin from './routes/Admin';
+import StartView from './components/start/StartView';
+import ControlPlane from './components/control-plane/ControlPlane';
+import AuthorizationCodeInterceptor from './components/oauth/AuthorizationCodeInterceptor';
+import AdminView from './components/admin/AdminView';
+import UserView from './components/user/UserView';
+
+console.log('index.js >> invoked');
 
 const router = createBrowserRouter([
   {
-    path: '/',
-    element: <Root />,
+    path: '/home',
+    element: <StartView />,
+    errorElement: <ErrorPage />
+  },
+  {
+    path: '/control-plane',
+    element: <ControlPlane />,
     errorElement: <ErrorPage />,
     children: [
       {
-        path: '/oauth',
-        element: <Auth />
-      },
-      {
-        path: '/app/user/:userId',
-        element: <User />
-      },
-      {
-        path: '/app/admin/:adminId',
-        element: <Admin />
+        path: 'oauth/intercept',
+        element: <AuthorizationCodeInterceptor />
       }
     ]
+  },
+  {
+    path: '/admin',
+    element: <AdminView />,
+    errorElement: <ErrorPage />
+  },
+  {
+    path: '/user',
+    element: <UserView />,
+    errorElement: <ErrorPage />
   }
 ]);
 
