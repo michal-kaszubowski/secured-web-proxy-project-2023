@@ -4,11 +4,12 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import './styles/index.css';
 import reportWebVitals from './reportWebVitals';
 import ErrorPage from './error-page';
-import StartView from './components/start/StartView';
-import ControlPlane from './components/control-plane/ControlPlane';
-import AuthorizationCodeInterceptor from './components/oauth/AuthorizationCodeInterceptor';
-import AdminView from './components/admin/AdminView';
-import UserView from './components/user/UserView';
+import StartView from './routes/start/StartView';
+// import ControlPlane from './components/control-plane/ControlPlane';
+import AuthorizationCodeInterceptor from './routes/oauth/AuthorizationCodeInterceptor';
+import AdminView from './routes/admin/AdminView';
+import UserView from './routes/user/UserView';
+import VerifyUser from './routes/oauth/VerifyUser';
 
 console.log('index.js >> invoked');
 
@@ -19,16 +20,24 @@ const router = createBrowserRouter([
     errorElement: <ErrorPage />
   },
   {
-    path: '/control-plane',
-    element: <ControlPlane />,
-    errorElement: <ErrorPage />,
-    children: [
-      {
-        path: 'oauth/intercept',
-        element: <AuthorizationCodeInterceptor />
-      }
-    ]
+    path: 'oauth/intercept',
+    element: <AuthorizationCodeInterceptor />
   },
+  {
+    path: 'oauth/verify',
+    element: <VerifyUser />
+  },
+  // {
+  //   path: '/control-plane',
+  //   element: <ControlPlane />,
+  //   errorElement: <ErrorPage />,
+  //   children: [
+  //     {
+  //       path: 'oauth/intercept',
+  //       element: <AuthorizationCodeInterceptor />
+  //     }
+  //   ]
+  // },
   {
     path: '/admin',
     element: <AdminView />,
