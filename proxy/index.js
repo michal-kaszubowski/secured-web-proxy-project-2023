@@ -10,6 +10,7 @@ const clientId = 'wsx2375';
 const clientSecret = 'mkDaSyQLBWgCbZoVJG97heFC3s6yxb3S';
 const redirect = 'http://localhost:3000/oauth/intercept';
 
+
 var authorizationData;
 
 const app = express();
@@ -22,7 +23,7 @@ app.use(bodyParser.json());
 // README endpoint
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, '/index.html')));
 
-// CHECKME endpoint
+// CHECK MY REQUEST endpoint
 app.post('/', (req, res) => res.send({
     params: req.query,
     body: req.body
@@ -32,7 +33,7 @@ app.post('/', (req, res) => res.send({
 app.get('/oauth', (req, res) => {
     fetch(`${issuer}`)
         .then(response => response.text().then(text => res.send(text)))
-        .catch(err => console.error(err));
+        .catch(error => console.error(error));
 });
 
 // START proxy flow
@@ -55,7 +56,13 @@ app.post('/oauth/init', (req, res) => {
 });
 
 // Identify logged user
-app.get('/oauth/userinfo', (req, res) => res.json(jwt(authorizationData.access_token)));
+app.get('/oauth/userinfo', (req, res) => {
+    const translatedToken = jwt(authorizationData.access_token)
+    res.json({
+        ...translatedToken.realm_access,
+        'nick': translatedToken.preferred_username
+    });
+});
 
 // fetch(`${issuer}/protocol/openid-connect/userinfo`, {
 //     headers: {

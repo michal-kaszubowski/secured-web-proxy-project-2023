@@ -1,19 +1,17 @@
 export default function VerifyUser() {
-    console.log('VerifyUser >> invoked');
-
     const proxyURL = 'http://localhost:5000';
 
     const request = fetch(`${proxyURL}/oauth/userinfo`);
 
     request.then(response => {
         response.json().then(data => {
-            localStorage.setItem('userNick', data.preferred_username);
+            localStorage.setItem('userNick', data.nick);
             
-            if (!data.realm_access.roles.includes("admin")) {
-                window.location.href = '../../user';
-            } else {
+            if (data.roles.includes("admin")) {
                 window.location.href = '../../admin';
+            } else {
+                window.location.href = '../../user';
             }
         })
-    }).catch(err => console.error(err));
+    }).catch(error => console.error(error));
 }

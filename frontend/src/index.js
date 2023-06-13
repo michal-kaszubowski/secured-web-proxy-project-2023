@@ -5,13 +5,12 @@ import './styles/index.css';
 import reportWebVitals from './reportWebVitals';
 import ErrorPage from './error-page';
 import StartView from './routes/start/StartView';
-// import ControlPlane from './components/control-plane/ControlPlane';
 import AuthorizationCodeInterceptor from './routes/oauth/AuthorizationCodeInterceptor';
 import AdminView from './routes/admin/AdminView';
 import UserView from './routes/user/UserView';
 import VerifyUser from './routes/oauth/VerifyUser';
 
-console.log('index.js >> invoked');
+// console.log('index.js >> invoked');
 
 const router = createBrowserRouter([
   {
@@ -27,17 +26,6 @@ const router = createBrowserRouter([
     path: 'oauth/verify',
     element: <VerifyUser />
   },
-  // {
-  //   path: '/control-plane',
-  //   element: <ControlPlane />,
-  //   errorElement: <ErrorPage />,
-  //   children: [
-  //     {
-  //       path: 'oauth/intercept',
-  //       element: <AuthorizationCodeInterceptor />
-  //     }
-  //   ]
-  // },
   {
     path: '/admin',
     element: <AdminView />,

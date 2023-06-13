@@ -1,5 +1,5 @@
 export default function StartContent() {
-    console.log('StartContent >> invoked');
+    // console.log('StartContent >> invoked');
 
     return (
         <div className="start-content">
