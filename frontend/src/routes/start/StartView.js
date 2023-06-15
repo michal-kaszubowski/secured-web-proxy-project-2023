@@ -1,9 +1,14 @@
 import StartNavBar from "./StartNavBar";
-import StartContent from "./StartContent";
+
+function StartContent() {
+    return (
+        <div className="start-content">
+            <h1>Hello to my super App!</h1>
+        </div>
+    );
+}
 
 export default function StartView() {
-    // console.log('StartView >> invoked');
-
     return (
         <div className="start-view">
             <StartNavBar />

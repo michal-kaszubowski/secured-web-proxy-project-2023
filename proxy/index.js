@@ -3,13 +3,14 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const path = require('path');
 const jwt = require('jwt-decode');
+require('dotenv').config()
 
 // >> Auth Server Info Section <<
-const issuer = 'http://localhost:8080/realms/myrealm';
-const clientId = 'wsx2375';
-const clientSecret = 'mkDaSyQLBWgCbZoVJG97heFC3s6yxb3S';
-const redirect = 'http://localhost:3000/oauth/intercept';
-
+const issuer = process.env.ISSUER;
+const clientId = process.env.CLIENT_ID;
+const clientSecret = process.env.CLIENT_SECRET;
+const redirect = process.env.REDIRECT_URL;
+const tokenEndpoint = process.env.TOKEN_ENDPOINT;
 
 var authorizationData;
 
@@ -40,19 +41,20 @@ app.get('/oauth', (req, res) => {
 app.post('/oauth/init', (req, res) => {
     const authorizationCode = req.query.code;
     const codeVerifier = req.body.code_verifier;
-    const body = `grant_type=authorization_code&redirect_uri=${redirect}&client_id=${clientId}&client_secret=${clientSecret}&code_verifier=${codeVerifier}&code=${authorizationCode}`;
+    const body = `grant_type=authorization_code&redirect_uri=${redirect}&client_id=${clientId}&client_secret=${clientSecret}&code_verifier=${codeVerifier}&code=${authorizationCode}&scope=openid`;
 
-    fetch(`${issuer}/protocol/openid-connect/token`, {
+    fetch(`${tokenEndpoint}`, {
         body: body,
         method: 'POST',
         headers: {
             "Content-Type": "application/x-www-form-urlencoded"
         },
     })
-        .then(response => response.json().then(data => authorizationData = data))
+        .then(response => response.json().then(data => {
+            authorizationData = data;
+            res.send('Got response from the Auth Server.')
+        }))
         .catch(() => console.error('Error occured. Not displayed due to security reasons.'));
-
-    res.send('Requesting token...')
 });
 
 // Identify logged user
@@ -60,18 +62,9 @@ app.get('/oauth/userinfo', (req, res) => {
     const translatedToken = jwt(authorizationData.access_token)
     res.json({
         ...translatedToken.realm_access,
-        'nick': translatedToken.preferred_username
+        'nick': translatedToken.preferred_username,
     });
 });
-
-// fetch(`${issuer}/protocol/openid-connect/userinfo`, {
-//     headers: {
-//         Authorization: `Bearer ${authorizationData.access_token}`
-//     }
-// })
-//     .then(response => response.text()
-//         .then(text => res.send(text)))
-//     .catch(err => console.error(err));
 
 // TO DELETE !!!
 app.get('/tmp/data', (req, res) => {
