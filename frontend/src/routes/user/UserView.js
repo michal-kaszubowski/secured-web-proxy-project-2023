@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 
 function UserNavBar() {
     const handleLogout = () => {
-        window.location.href = 'http://localhost:8080/realms/myrealm/protocol/openid-connect/logout';
+        const logoutRequest = fetch('http://localhost:5000/oauth/end');
+        logoutRequest.then(() => window.location.href = '../home');
     };
 
     return (

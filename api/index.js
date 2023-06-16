@@ -41,14 +41,15 @@ function serve(app, client) {
     // >> /user
     // GET common data for regular users
     app.get('/user/public/data', (req, res) => {
+        console.log('>$ Received request for /user/public/data. STATUS: PENDING');
         const token = req.headers.authorization.slice(7);
         const response = authorize(token, 'user')
             .then(() => {
-                console.log('>$ Authorized request for /user/public/data.');
+                console.log('>$ Authorized request for /user/public/data. STATUS: OK');
                 return {
                     'status': 'resolved',
                     'authorized': true,
-                    'data': 'This is user-scope restricted data.'
+                    'data': 'This is the user-scope restricted data.'
                 };
             })
             .catch(error => {
@@ -66,13 +67,41 @@ function serve(app, client) {
     app.get('/user/private/:id', (req, res) => {
         const userId=req.params.id;
         const token = req.headers.authorization.slice(7);
+        console.log(`>$ Received request for /user/private/${userId}. STATUS: PENDING`)
+
         const response = authorize(token, 'user')
             .then(() => {
-                console.log('>$ Authorized request for /user/public/data.');
+                console.log('>$ Authorized request for /user/public/data. STATUS: OK');
                 return {
                     'status': 'resolved',
                     'authorized': true,
                     'data': `This is the user-specific data for ${userId}`
+                };
+            })
+            .catch(error => {
+                console.error(error);
+                return {
+                    'status': 'unathorized',
+                    'authorized': false,
+                    'data': ''
+                };
+            });
+
+        response.then(data => res.json(data));
+    });
+
+    // /admin
+    // GET admin-scope specific data
+    app.get('/admin/public/data', (req, res) => {
+        console.log('>$ Received request for /admin/public/data. STATUS: PENDING');
+        const token = req.headers.authorization.slice(7);
+        const response = authorize(token, 'admin')
+            .then(() => {
+                console.log('>$ Authorized request for /admin/public/data. STATUS: OK');
+                return {
+                    'status': 'resolved',
+                    'authorized': true,
+                    'data': 'This is the admin-scope restricted data.'
                 };
             })
             .catch(error => {

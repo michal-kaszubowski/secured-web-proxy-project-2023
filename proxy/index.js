@@ -11,6 +11,7 @@ const clientId = process.env.CLIENT_ID;
 const clientSecret = process.env.CLIENT_SECRET;
 const redirect = process.env.REDIRECT_URL;
 const tokenEndpoint = process.env.TOKEN_ENDPOINT;
+const logoutEndpoint = process.env.LOGOUT_ENDPOINT;
 const apiURL = process.env.API_URL;
 
 var authorizationData;
@@ -44,10 +45,10 @@ app.get('/oauth', (req, res) => {
 app.post('/oauth/init', (req, res) => {
     const authorizationCode = req.query.code;
     const codeVerifier = req.body.code_verifier;
-    const body = `grant_type=authorization_code&redirect_uri=${redirect}&client_id=${clientId}&client_secret=${clientSecret}&code_verifier=${codeVerifier}&code=${authorizationCode}&scope=openid`;
+    const requestBody = `grant_type=authorization_code&redirect_uri=${redirect}&client_id=${clientId}&client_secret=${clientSecret}&code_verifier=${codeVerifier}&code=${authorizationCode}&scope=openid`;
 
     fetch(`${tokenEndpoint}`, {
-        body: body,
+        body: requestBody,
         method: 'POST',
         headers: {
             "Content-Type": "application/x-www-form-urlencoded"
@@ -67,19 +68,37 @@ app.get('/oauth/userinfo', (req, res) => {
         'nick': translatedToken.preferred_username,
     });
 });
+// END session
+app.get('/oauth/end', (req, res) => {
+    const requestBody = `client_id=${clientId}&client_secret=${clientSecret}&refresh_token=${authorizationData.refresh_token}`;
+    const logoutRequest = fetch(`${logoutEndpoint}`, {
+        body: requestBody,
+        method: 'POST',
+        headers: {
+            Authorization: `Bearer ${authorizationData.access_token}`,
+            "Content-Type": "application/x-www-form-urlencoded"
+        }
+    });
+    logoutRequest
+        .then(() => {
+            res.send('Success!')
+        })
+        .catch(error => console.error(error));
+});
 
 // >> /forward
 app.get('/forward', (req, res) => {
     switch (req.query.request) {
         case 'userpublic':
-            const request = fetch(`${apiURL}/user/public/data`, {
+            console.log('>$ Received request for userpublic. STATUS: PENDING');
+            const userPublicRequest = fetch(`${apiURL}/user/public/data`, {
                 headers: {
                     Authorization: `Bearer ${authorizationData.access_token}`
                 }
             });
-            const response = request
+            const userPublicResponse = userPublicRequest
                 .then(response => {
-                    console.log('>$ Received response for userpublic.');
+                    console.log('>$ Received response for userpublic. STATUS: OK');
                     return response.json();
                 })
                 .catch(error => {
@@ -90,29 +109,53 @@ app.get('/forward', (req, res) => {
                         'data': ''
                     });
                 });
-            response.then(data => res.json(data));
+            userPublicResponse.then(data => res.json(data));
 
             break;
         case 'userprivate':
-            // const request = fetch(`${apiURL}/user/private/${translatedToken.preferred_username}`, {
-            //     headers: {
-            //         Authorization: `Bearer ${authorizationData.access_token}`
-            //     }
-            // });
-            // const response = request
-            //     .then(response => {
-            //         console.log('>$ Received response for userprivate.');
-            //         return response.json();
-            //     })
-            //     .catch(error => {
-            //         console.error(error);
-            //         res.json({
-            //             'status': 'proxy-error',
-            //             'authorized': false,
-            //             'data': ''
-            //         });
-            //     });
-            // response.then(data => res.json(data));
+            console.log('>$ Received request for userprivate. STATUS: PENDING');
+            const userPrivateRequest = fetch(`${apiURL}/user/private/${translatedToken.preferred_username}`, {
+                headers: {
+                    Authorization: `Bearer ${authorizationData.access_token}`
+                }
+            });
+            const userPrivateResponse = userPrivateRequest
+                .then(response => {
+                    console.log('>$ Received response for userprivate. STATUS: OK');
+                    return response.json();
+                })
+                .catch(error => {
+                    console.error(error);
+                    res.json({
+                        'status': 'proxy-error',
+                        'authorized': false,
+                        'data': ''
+                    });
+                });
+            userPrivateResponse.then(data => res.json(data));
+
+            break;
+        case 'adminpublic':
+            console.log('>$ Received request for adminpublic. STATUS: PENDING');
+            const adminPublicRequest = fetch(`${apiURL}/admin/public/data`, {
+                headers: {
+                    Authorization: `Bearer ${authorizationData.access_token}`
+                }
+            });
+            const adminPublicResponse = adminPublicRequest
+                .then(response => {
+                    console.log('>$ Received response for adminpublic. STATUS: OK');
+                    return response.json();
+                })
+                .catch(error => {
+                    console.error(error);
+                    res.json({
+                        'status': 'proxy-error',
+                        'authorized': false,
+                        'data': ''
+                    });
+                });
+            adminPublicResponse.then(data => res.json(data));
 
             break;
         default:
