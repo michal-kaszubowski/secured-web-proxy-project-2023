@@ -2,23 +2,89 @@ const express = require('express');
 const { MongoClient } = require('mongodb');
 const bodyParser = require('body-parser');
 const path = require('path');
+const jwt = require('jwt-decode');
 require('dotenv').config();
 
 function authorize(token, scope) {
-    const verifyRequest = fetch(`${process.env.AUTH_SERVER_URI}`, {
+    const verifyRequest = fetch(`${process.env.AUTH_SERVER_URL}`, {
         headers: {
             Authorization: `Bearer ${token}`
         }
     });
 
-    // verifyRequest.then(response => response.json().then(data => console.log(data)))
+    return verifyRequest
+        .then(response => {
+            if (response.ok) {
+                const includes = jwt(token).realm_access.roles.includes(scope) ? true : false;
+                return includes;
+            }
+            return false;
+        })
+        .catch(error => {
+            console.error(error)
+            return false;
+        });
 };
 
 function serve(app, client) {
+    // >> /
+    // README endpoint
     app.get('/', (req, res) => res.sendFile(path.join(__dirname, '/index.html')));
+    // Check if has access to user API scope
 
+    // >> /check
+    app.get('/check/user', (req, res) => {
+        const token = req.headers.authorization.slice(7);
+        authorize(token, 'user').then(authorized => res.send(authorized));
+    });
+
+    // >> /user
+    // GET common data for regular users
     app.get('/user/public/data', (req, res) => {
-        res.send('This is user-scope restricted data.')
+        const token = req.headers.authorization.slice(7);
+        const response = authorize(token, 'user')
+            .then(() => {
+                console.log('>$ Authorized request for /user/public/data.');
+                return {
+                    'status': 'resolved',
+                    'authorized': true,
+                    'data': 'This is user-scope restricted data.'
+                };
+            })
+            .catch(error => {
+                console.error(error);
+                return {
+                    'status': 'unathorized',
+                    'authorized': false,
+                    'data': ''
+                };
+            });
+
+        response.then(data => res.json(data));
+    });
+    // GET specific (id) user data
+    app.get('/user/private/:id', (req, res) => {
+        const userId=req.params.id;
+        const token = req.headers.authorization.slice(7);
+        const response = authorize(token, 'user')
+            .then(() => {
+                console.log('>$ Authorized request for /user/public/data.');
+                return {
+                    'status': 'resolved',
+                    'authorized': true,
+                    'data': `This is the user-specific data for ${userId}`
+                };
+            })
+            .catch(error => {
+                console.error(error);
+                return {
+                    'status': 'unathorized',
+                    'authorized': false,
+                    'data': ''
+                };
+            });
+
+        response.then(data => res.json(data));
     });
 
     const listeningPort = 8000;

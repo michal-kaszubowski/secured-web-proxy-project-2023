@@ -15,12 +15,12 @@
     <div class="list">
       <h2>Here is a small list of what endpoints are currently aviable for this API:</h2>
       <ul>
-        <li>/ [GET, POST] shows info about API; enables to test HTTP requests.</li>
+        <li>/ [GET, POST] shows info about API; allows to test HTTP requests.</li>
         <li>
           <p>/oauth</p>
           <ul>
-            <li>/ [GET] validates connection with the Authorization Server</li>
-            <li>/init?code={authorization_code_here} [GET] starts oauth token redeeming process.</li>
+            <li>/ [GET] validates connection with the Authorization Server.</li>
+            <li>/init?code={authorization_code_here} [GET] proxy redemes token and stores it safly.</li>
             <li>/userinfo [GET] gets data about currently logged in user.</li>
           </ul>
         </li>
