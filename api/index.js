@@ -5,7 +5,7 @@ const path = require('path');
 const jwt = require('jwt-decode');
 require('dotenv').config();
 
-function authorize(token, scope) {
+function authorize(token, scope, user) {
     const verifyRequest = fetch(`${process.env.AUTH_SERVER_URL}`, {
         headers: {
             Authorization: `Bearer ${token}`
@@ -14,11 +14,16 @@ function authorize(token, scope) {
 
     return verifyRequest
         .then(response => {
-            if (response.ok) {
-                const includes = jwt(token).realm_access.roles.includes(scope) ? true : false;
-                return includes;
-            }
-            return false;
+            response.json().then(data => {
+                if (user == null && data.sub) {  // no userId specified and valid token
+                    const includes = jwt(token).realm_access.roles.includes(scope) ? true : false;
+                    return includes;
+                } else if (user !== null && data.preferred_username == user) {  // userId provided and matches name from response
+                    const includes = jwt(token).realm_access.roles.includes(scope) ? true : false;
+                    return includes;
+                }
+                return false;
+            });
         })
         .catch(error => {
             console.error(error)
@@ -65,13 +70,13 @@ function serve(app, client) {
     });
     // GET specific (id) user data
     app.get('/user/private/:id', (req, res) => {
-        const userId=req.params.id;
+        const userId = req.params.id;
         const token = req.headers.authorization.slice(7);
         console.log(`>$ Received request for /user/private/${userId}. STATUS: PENDING`)
 
-        const response = authorize(token, 'user')
+        const response = authorize(token, 'user', userId)
             .then(() => {
-                console.log('>$ Authorized request for /user/public/data. STATUS: OK');
+                console.log(`>$ Authorized request for /user/private/${userId}. STATUS: OK`);
                 return {
                     'status': 'resolved',
                     'authorized': true,
