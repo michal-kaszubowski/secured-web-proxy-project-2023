@@ -42,6 +42,10 @@ function serve(app, client) {
         const token = req.headers.authorization.slice(7);
         authorize(token, 'user').then(authorized => res.send(authorized));
     });
+    app.get('/check/admin', (req, res) => {
+        const token = req.headers.authorization.slice(7);
+        authorize(token, 'admin').then(authorized => res.send(authorized));
+    });
 
     // >> /user
     // GET common data for regular users

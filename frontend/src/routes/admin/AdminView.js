@@ -1,11 +1,7 @@
 import { useState, useEffect } from 'react';
 
-function AdminNavBar() {
-    const handleLogout = () => {
-        const logoutRequest = fetch('http://localhost:5000/oauth/end');
-        logoutRequest.then(() => window.location.href = '../home');
-    };
 
+function AdminNavBar({ handleLogout }) {
     return (
         <div className="navbar">
             <p>Logo</p>
@@ -40,9 +36,21 @@ function AdminContent() {
 }
 
 export default function AdminView() {
+    const userNick = localStorage.getItem('userNick');
+    const handleLogout = () => {
+        const logoutRequest = fetch('http://localhost:5000/oauth/end');
+        logoutRequest.then(() => window.location.href = '../home');
+    };
+    
+    useEffect(() => {
+        const sleep = sec => new Promise(resolve => setTimeout(resolve, sec * 1000));
+        sleep(1800).then(() => handleLogout());
+    }, [])
+
     return (
         <div className="admin">
-            <AdminNavBar />
+            <AdminNavBar handleLogout={handleLogout}/>
+            <div className="greeting">Greetings, {userNick}!</div>
             <AdminContent />
         </div>
     );

@@ -1,11 +1,6 @@
 import { useState, useEffect } from 'react';
 
-function UserNavBar() {
-    const handleLogout = () => {
-        const logoutRequest = fetch('http://localhost:5000/oauth/end');
-        logoutRequest.then(() => window.location.href = '../home');
-    };
-
+function UserNavBar({ handleLogout }) {
     return (
         <div className="navbar">
             <p>Logo</p>
@@ -66,10 +61,19 @@ function UserPrivateContent() {
 
 export default function UserView() {
     const userNick = localStorage.getItem('userNick');
+    const handleLogout = () => {
+        const logoutRequest = fetch('http://localhost:5000/oauth/end');
+        logoutRequest.then(() => window.location.href = '../home');
+    };
+
+    useEffect(() => {
+        const sleep = sec => new Promise(resolve => setTimeout(resolve, sec * 1000));
+        sleep(1800).then(() => handleLogout());
+    }, []);
 
     return (
         <div className="user">
-            <UserNavBar />
+            <UserNavBar handleLogout={handleLogout}/>
             <div className="greeting">Greetings, {userNick}!</div>
             <UserPublicContent />
             <UserPrivateContent />
