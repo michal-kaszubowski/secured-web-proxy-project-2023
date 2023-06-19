@@ -16,7 +16,26 @@
       <h2>Here is a small list of what endpoints are currently aviable for this API:</h2>
       <ul>
         <li>/ [GET, POST] shows info about API; enables to test HTTP requests.</li>
-        <li> </li>
+        <li>
+          <p>/check</p>
+          <ul>
+            <li>/user [GET] checks if supported access token enables access to user API scope.</li>
+            <li>/admin [GET] checks if access token grants permission to access admin API scope.</li>
+          </ul>
+        </li>
+        <li>
+          <p>/user</p>
+          <ul>   
+            <li>/public/data [GET] returns data accessible for all loged in users.</li>
+            <li>/private/:userID [GET] returns data for the specific user.</li>
+          </ul>
+        </li>
+        <li>
+          <p>/admin</p>
+          <ul>
+            <li>/public/data [GET] returns data visible for all admins.</li>
+          </ul>
+        </li>
       </ul>
     </div>
   </div>

@@ -22,8 +22,10 @@
             <li>/ [GET] validates connection with the Authorization Server.</li>
             <li>/init?code={authorization_code_here} [GET] proxy redemes token and stores it safly.</li>
             <li>/userinfo [GET] gets data about currently logged in user.</li>
+            <li>/end [GET] logs out currently logged in user.</li>
           </ul>
         </li>
+        <li>/forward?request={userpublic || userprivate || adminpublic} forwards request to the API automatically refreshing token if needed.</li>
       </ul>
     </div>
   </div>
